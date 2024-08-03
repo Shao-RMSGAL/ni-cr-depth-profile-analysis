@@ -3,10 +3,25 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.interpolate import splrep, splev
 from scipy.ndimage import gaussian_filter1d
+import pandas as pd
 
+# Save data to a csv
+def save_data(segments, depth, cr_profile, ni_profile):
+    data = {
+            "Segment": np.arange(1, segments + 1),
+            "Depth (nm)": np.linspace(0, depth, segments),
+            "Cr precipitate coverage (%)": cr_profile * 100,
+            "Ni precipitate coverage (%)": ni_profile * 100
+            }
+    df = pd.DataFrame(data)
+
+    # Save to CSV
+    df.to_csv("./output/precipitate_coverage.csv", index=False)
+
+# Plot profiles and save a figure
 def plot_profiles(cr_profile, ni_profile, height):
     depths = np.linspace(0, height, segments)
-    
+
     # Optional data smoothing
     sigma = 2.0
     cr_conc_profile_sm = gaussian_filter1d(cr_profile, sigma)
@@ -27,7 +42,7 @@ def plot_profiles(cr_profile, ni_profile, height):
     fig.suptitle("Ni and Cr Precipitate Coverage vs Sample Depth")
     ax1.plot(depths_spline, cr_spline_data * 100)
     ax1.set_xlim(0, height)
-    ax1.set_ylim(0, 5)
+    ax1.set_ylim(0, 15)
     ax1.set_ylabel("Cr Precipitate coverage (%)")
     ax1.grid()
 
@@ -40,8 +55,9 @@ def plot_profiles(cr_profile, ni_profile, height):
     ax2.grid()
 
     # Save figure
-    plt.savefig("./output/Cr_Ni_Precipitate_Coverage_Plot.png")
+    fig.savefig("./output/Cr_Ni_Precipitate_Coverage_Plot.png")
 
+# Show binary images and save a figure
 def show_binary_images(cr_binary, ni_binary, width, height):
     fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True) # type: ignore
 
@@ -61,7 +77,7 @@ def show_binary_images(cr_binary, ni_binary, width, height):
     ax2.set_title("Ni Precipitate Coverage")
     
     # Save figure
-    plt.savefig("./output/Cr_Ni_Precipitate_Coverage.png")
+    fig.savefig("./output/Cr_Ni_Precipitate_Coverage.png")
 
 def get_conc_profiles(cr_binary, ni_binary, segments):
     # Get the number of rows of pixels
@@ -107,7 +123,8 @@ _, ni_binary = cv.threshold(ni_img, ni_threshold, 255, cv.THRESH_BINARY)
 
 # Number of segments to use when profiling
 segments = 50
-cr_conc_profile, ni_conc_profile = get_conc_profiles(cr_binary, ni_binary, segments)
+cr_profile, ni_profile = get_conc_profiles(cr_binary, ni_binary, segments)
 
-plot_profiles(cr_conc_profile, ni_conc_profile, height)
+plot_profiles(cr_profile, ni_profile, height)
 show_binary_images(cr_binary, ni_binary, width, height)
+save_data(segments, height, cr_profile, ni_profile)
