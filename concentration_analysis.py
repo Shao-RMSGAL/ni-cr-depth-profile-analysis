@@ -51,14 +51,14 @@ def show_binary_images(cr_binary, ni_binary, width, height):
     ax1.set_ylabel("Depth (nm)")
     ax1.set_xlim(0, width)
     ax1.set_ylim(height, 0)
-    ax1.set_title("Nickel Precipitate Coverage")
+    ax1.set_title("Cr Precipitate Coverage")
 
     # Plot Ni data
     ax2.imshow(ni_binary, cmap='gray', extent=[0, width, height, 0])
     ax2.set_xlabel("Width (nm)")
     ax2.set_xlim(0, width)
     ax2.set_ylim(height, 0)
-    ax2.set_title("Chromium Precipitate Coverage")
+    ax2.set_title("Ni Precipitate Coverage")
     
     # Save figure
     plt.savefig("./output/Cr_Ni_Precipitate_Coverage.png")
