@@ -39,22 +39,52 @@ def plot_profiles(cr_profile, ni_profile, height):
     cr_spline_data = splev(depths_spline, cr_spline)
     ni_spline_data = splev(depths_spline, ni_spline)
 
-    # Plot Cr data
-    fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)  # type: ignore
+    fig = plt.figure()
+    gs = fig.add_gridspec(1, 5, width_ratios=[1, 1, 1, 1, 1])
+    ax1 = fig.add_subplot(gs[0, 0], )
+    ax3 = fig.add_subplot(gs[0, 1], sharey=ax1)
+    ax2 = fig.add_subplot(gs[0, 3], sharey=ax1)
+    ax4 = fig.add_subplot(gs[0, 4], sharey=ax1)
+    plt.subplots_adjust(wspace=0)
+
+    # fig.subplots_adjust(left=0.2, right=0.9, top=0.9, bottom=0.1,
+    #                     wspace=0.0, hspace=0.0)
+    # gs.update(wspace=0.2, hspace=0.4)  # More space between the subplots
+
+    fig.set_figheight(5)
+    fig.set_figwidth(12)
+
     fig.suptitle("Ni and Cr Precipitate Coverage vs Sample Depth")
-    ax1.plot(depths_spline, cr_spline_data * 100)
-    ax1.set_xlim(0, height)
-    ax1.set_ylim(0, 15)
-    ax1.set_ylabel("Cr Precipitate coverage (%)")
+    ax1.plot(cr_spline_data * 100, depths_spline)
+
+    ax1.set_xlim(0, 17)
+    ax1.set_ylim(height, 0)
+    ax1.set_xlabel("Cr Precipitate coverage (%)")
+    ax1.set_ylabel("Depth (nm)")
     ax1.grid()
 
     # Plot Ni data
-    ax2.plot(depths_spline, ni_spline_data * 100)
-    ax2.set_xlim(0, height)
-    ax2.set_ylim(0, 3)
-    ax2.set_xlabel("Depth (nm)")
-    ax2.set_ylabel("Ni Precipitate coverage (%)")
+    ax2.plot(ni_spline_data * 100, depths_spline)
+    ax2.set_ylim(height, 0)
+    ax2.set_xlim(0, 3.5)
+    ax2.set_xlabel("Ni Precipitate coverage (%)")
+    # ax2.set_aspect(aspect_ratio)
     ax2.grid()
+
+    # Plot Cr data
+    ax3.imshow(cr_binary, cmap='gray', extent=[0, width, height, 0])
+    ax3.set_xlim(0, width)
+    ax3.set_ylim(height, 0)
+
+    # Plot Ni data
+    ax4.imshow(ni_binary, cmap='gray', extent=[0, width, height, 0])
+    ax4 .set_xlim(0, width)
+    ax4.set_ylim(height, 0)
+
+    # Disable tick marks for all axes
+    for ax in [ax3, ax4]:
+        ax.tick_params(length=0, labelbottom=False, labelleft=False,
+                       labelright=False, labeltop=False)  # Disable tick marks
 
     # Save figure
     fig.savefig("./output/Cr_Ni_Precipitate_Coverage_Plot.png")
@@ -78,6 +108,7 @@ def show_binary_images(cr_binary, ni_binary, width, height):
     ax2.set_xlim(0, width)
     ax2.set_ylim(height, 0)
     ax2.set_title("Ni Precipitate Coverage")
+
 
     # Save figure
     fig.savefig("./output/Cr_Ni_Precipitate_Coverage.png")
@@ -128,9 +159,9 @@ _, cr_binary = cv.threshold(cr_img, cr_threshold, 255, cv.THRESH_BINARY)
 _, ni_binary = cv.threshold(ni_img, ni_threshold, 255, cv.THRESH_BINARY)
 
 # Number of segments to use when profiling
-segments = 50
+segments = 100
 cr_profile, ni_profile = get_conc_profiles(cr_binary, ni_binary, segments)
 
 plot_profiles(cr_profile, ni_profile, height)
-show_binary_images(cr_binary, ni_binary, width, height)
+# show_binary_images(cr_binary, ni_binary, width, height)
 save_data(segments, height, cr_profile, ni_profile)
