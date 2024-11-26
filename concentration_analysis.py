@@ -174,12 +174,12 @@ def get_conc_profiles(cr_binary, ni_binary, mo_binary, fe_binary, segments):
         cr_segment = cr_binary[cr_prev_index:cr_next_index, :]
         ni_segment = ni_binary[ni_prev_index:ni_next_index, :]
         mo_segment = mo_binary[mo_prev_index:mo_next_index, :]
-        fe_segment = ni_binary[fe_prev_index:fe_next_index, :]
+        fe_segment = fe_binary[fe_prev_index:fe_next_index, :]
         # Count white pixels in the segment
-        cr_profile[i] = np.sum(cr_segment == 255) # / cr_segment.size
-        ni_profile[i] = np.sum(ni_segment == 255) # / ni_segment.size
-        mo_profile[i] = np.sum(mo_segment == 255) # / mo_segment.size
-        fe_profile[i] = np.sum(fe_segment == 255) # / fe_segment.size
+        cr_profile[i] = np.sum(cr_segment == 255)  # / cr_segment.size
+        ni_profile[i] = np.sum(ni_segment == 255)  # / ni_segment.size
+        mo_profile[i] = np.sum(mo_segment == 255)  # / mo_segment.size
+        fe_profile[i] = np.sum(fe_segment == 255)  # / fe_segment.size
     return cr_profile, ni_profile, mo_profile, fe_profile
 
 
@@ -236,15 +236,17 @@ for class_name in class_path:
         _, mo_binary = cv.threshold(mo_img, mo_threshold, 255, cv.THRESH_BINARY)
         _, fe_binary = cv.threshold(fe_img, fe_threshold, 255, cv.THRESH_BINARY)
 
+
         # Number of segments to use when profiling
         segments = 100
         cr_profile, ni_profile, mo_profile, fe_profile = get_conc_profiles(
                 cr_binary, ni_binary, mo_binary, fe_binary, segments)
 
+        
         path = os.path.join(output_dir, class_name, material)
        
         write_images([cr_img, ni_img, mo_img, fe_img], elements, path)
-        plot_profiles(cr_profile, ni_profile, mo_profile, fe_profile, height, 
+        plot_profiles(cr_profile, ni_profile, mo_profile, fe_profile, height,
                                                                         path)
         show_binary_images(cr_binary, ni_binary, mo_binary, fe_binary, width, height, path)
         save_data(segments, height, cr_profile, ni_profile, mo_profile, 
